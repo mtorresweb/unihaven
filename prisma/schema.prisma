@@ -1,0 +1,79 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  role  String @default("user")
+  repositories Repository[]
+  comments Comment[]
+  notifications Notification[]
+  notificationsEnabled Boolean @default(true)
+  reviews Review[]
+}
+
+model Repository {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String
+  status String @default("pending")
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt DateTime @default(now())
+  url String
+  comments Comment[]
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  labels Label[]
+  reviews Review[]
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  content String
+  author User @relation(fields: [authorId], references: [id])
+  authorId Int
+  repository Repository @relation(fields: [repositoryId], references: [id])
+  repositoryId Int
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  title String
+  content String
+  status String @default("unread")
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String
+  repositories Repository[]
+}
+
+model Label {
+  id Int @id @default(autoincrement())
+  name String
+  repositories Repository[]
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  content String
+  author User @relation(fields: [authorId], references: [id])
+  authorId Int
+  repository Repository @relation(fields: [repositoryId], references: [id])
+  repositoryId Int
+  createdAt DateTime @default(now())
+}
